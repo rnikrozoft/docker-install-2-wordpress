@@ -1,0 +1,68 @@
+version: "3.3"
+
+services:
+  # Database 1
+  mariadb1:
+    image: mariadb:latest
+    volumes:
+      - ./mariadb1:/var/lib/mysql
+    restart: always
+    environment: 
+      MYSQL_ROOT_PASSWORD: supersecret 
+      MYSQL_DATABASE: db1 
+      MYSQL_USER: db1user 
+      MYSQL_PASSWORD: secret
+    networks:
+      - dockerwp
+
+  # Database 2
+  mariadb2:
+    image: mariadb:latest
+    volumes:
+      - ./mariadb2:/var/lib/mysql
+    restart: always
+    environment: 
+      MYSQL_ROOT_PASSWORD: supersecret 
+      MYSQL_DATABASE: db2 
+      MYSQL_USER: db2user 
+      MYSQL_PASSWORD: secret
+    networks:
+      - dockerwp
+
+  # wordpress 1
+  wordpress1:
+    depends_on:
+      - mariadb1
+    image: wordpress:latest
+    restart: always
+    volumes:
+      - ./wordpress1:/var/www/html
+    ports:
+      - "8000:80"
+    environment:
+      WORDPRESS_DB_HOST: mariadb1:3306
+      WORDPRESS_DB_NAME: db1
+      WORDPRESS_DB_USER: db1user
+      WORDPRESS_DB_PASSWORD: secret
+    networks:
+    - dockerwp
+
+    # wordpress 2
+  wordpress2:
+    depends_on:
+      - mariadb2
+    image: wordpress:latest
+    restart: always
+    volumes:
+      - ./wordpress2:/var/www/html
+    ports:
+      - "8081:80"
+    environment:
+      WORDPRESS_DB_HOST: mariadb2:3306
+      WORDPRESS_DB_NAME: db2
+      WORDPRESS_DB_USER: db2user
+      WORDPRESS_DB_PASSWORD: secret
+    networks:
+    - dockerwp
+networks:
+  dockerwp:
